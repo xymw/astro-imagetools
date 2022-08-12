@@ -1,0 +1,19 @@
+---
+import renderBackgroundPicture from "../api/renderBackgroundPicture.js";
+import { BackgroundPictureConfigOptions } from "../types.d";
+
+declare interface Props
+  extends Pick<
+    BackgroundPictureConfigOptions,
+    Exclude<keyof BackgroundPictureConfigOptions, "content">
+  > {}
+
+const content = await Astro.slots.render("default");
+
+const { link, style, htmlElement } = await renderBackgroundPicture({
+  content,
+  ...(Astro.props as Props),
+});
+---
+
+<Fragment set:html={link + style + htmlElement} />
