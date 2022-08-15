@@ -1,6 +1,6 @@
 // @ts-check
 import fs from "node:fs";
-import { posix as path } from "node:path";
+import { extname, posix as path } from "node:path";
 import { fsCachePath } from "../../utils/runtimeChecks.js";
 
 const copied = [];
@@ -47,8 +47,14 @@ export async function saveAndCopyAsset(
 
   await fs.promises.copyFile(src, dest).catch(async (error) => {
     if (error.code === "ENOENT") {
-      const imageBuffer = buffer || (await image.toBuffer());
-
+      const filePath = image.options.input.file
+      const ext = extname(filePath).slice(1)
+      let imageBuffer
+      if (ext === 'svg') {
+        imageBuffer = await fs.promises.readFile(filePath)
+      } else {
+        imageBuffer = buffer || (await image.toBuffer());
+      }
       await Promise.all(
         [src, dest].map(async (dir) => {
           await fs.promises.writeFile(dir, imageBuffer);
